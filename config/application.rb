@@ -24,5 +24,7 @@ module DialogWatch
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
     config.i18n.default_locale = :fr
+    config.solid_queue.connects_to = { database: { writing: :queue, reading: :queue } }
+    config.active_job.queue_adapter = :solid_queue
   end
 end

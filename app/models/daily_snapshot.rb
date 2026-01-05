@@ -1,0 +1,2 @@
+class DailySnapshot < ApplicationRecord
+end

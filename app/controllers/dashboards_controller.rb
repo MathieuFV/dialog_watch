@@ -1,21 +1,33 @@
 class DashboardsController < ApplicationController
   def index
-    # KPI 1 : Combien d'organisations avons-nous ?
-    @org_count = Organization.count
+    # 1. Gestion de la date sélectionnée
+    @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.today
+    @is_today = @selected_date == Date.today
 
-    # KPI 2 : Combien d'arrêtés au total ?
-    @reg_count = Regulation.count
+    # 2. Récupération du snapshot pour cette date
+    @snapshot = DailySnapshot.find_by(date: @selected_date)
 
-    # KPI 3 : Date de la dernière donnée fraîche (le dernier import)
-    # On prend le règlement le plus récent et on regarde son 'last_seen_at'
-    @last_update = Regulation.maximum(:last_seen_at)
-    
-    # KPI 4 : Top 5 des organisations les plus actives (celles qui ont le plus d'arrêtés)
-    # C'est une requête un peu plus avancée : 
-    # On joint les tables, on groupe par organisation, on compte, et on trie.
-    @top_orgs = Organization.joins(:regulations)
-                            .group(:id)
-                            .order('COUNT(regulations.id) DESC')
-                            .limit(5)
+    # 3. Calcul des KPIs
+    if @is_today
+      # Si c'est aujourd'hui, on garde tes requêtes performantes en temps réel
+      @org_count = Organization.count
+      @reg_count = Regulation.count
+      @last_update = Regulation.maximum(:last_seen_at)
+      @top_orgs = Organization.joins(:regulations)
+                              .group(:id)
+                              .order('COUNT(regulations.id) DESC')
+                              .limit(5)
+    else
+      @org_count = @snapshot&.total_organizations || 0
+      @reg_count = @snapshot&.total_regulations || 0
+      @last_update = @selected_date.to_time.end_of_day # La date du snapshot
+      
+      @top_orgs_events = @snapshot&.snapshot_events
+                                  &.where(event_type: 'added')
+                                  &.group(:organization_id)
+                                  &.count 
+                                  &.sort_by { |_id, count| -count }
+                                  &.first(5)
+    end
   end
 end
