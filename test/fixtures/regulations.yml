@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  organization: one
+  external_id: MyString
+  regulation_type: MyString
+  start_date: 2026-01-05 11:56:49
+  end_date: 2026-01-05 11:56:49
+  last_seen_at: 2026-01-05 11:56:49
+
+two:
+  organization: two
+  external_id: MyString
+  regulation_type: MyString
+  start_date: 2026-01-05 11:56:49
+  end_date: 2026-01-05 11:56:49
+  last_seen_at: 2026-01-05 11:56:49
