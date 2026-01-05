@@ -89,20 +89,10 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  primary: &primary_production
-    <<: *default
-    database: dialog_watch_production
-    username: dialog_watch
-    password: <%= ENV["DIALOG_WATCH_DATABASE_PASSWORD"] %>
-  cache:
-    <<: *primary_production
-    database: dialog_watch_production_cache
-    migrations_paths: db/cache_migrate
+  primary:
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
   queue:
-    <<: *primary_production
-    database: dialog_watch_production_queue
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
     migrations_paths: db/queue_migrate
-  cable:
-    <<: *primary_production
-    database: dialog_watch_production_cable
-    migrations_paths: db/cable_migrate
