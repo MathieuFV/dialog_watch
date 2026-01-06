@@ -1,15 +1,16 @@
 class DashboardsController < ApplicationController
   def index
-    # 1. Gestion de la date sélectionnée
+    # Gestion du sélecteur de date
     @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.today
     @is_today = @selected_date == Date.today
 
-    # 2. Récupération du snapshot pour cette date
+    # Pour la date sélectionnée, récupérer le snapshot de la base de données de ce jour là
     @snapshot = DailySnapshot.find_by(date: @selected_date)
 
-    # 3. Calcul des KPIs
+    # Calcul des indicateurs du dashboard pour le snapshot séléctionné
     if @is_today
-      # Si c'est aujourd'hui, on garde tes requêtes performantes en temps réel
+      # Si on reste sur la date du jour, les dernières données sont stockées dans la base de données
+      # 'chaude', on peut donc utiliser les fonctions natives pour faire les calculs (count, maximum, ...)
       @org_count = Organization.count
       @reg_count = Regulation.count
       @last_update = Regulation.maximum(:last_seen_at)
@@ -18,9 +19,10 @@ class DashboardsController < ApplicationController
                               .order('COUNT(regulations.id) DESC')
                               .limit(5)
     else
+      # Si on est sur une date antérieure, on récupère les données à afficher dans la table snapshot
       @org_count = @snapshot&.total_organizations || 0
       @reg_count = @snapshot&.total_regulations || 0
-      @last_update = @selected_date.to_time.end_of_day # La date du snapshot
+      @last_update = @selected_date.to_time.end_of_day
       
       @top_orgs_events = @snapshot&.snapshot_events
                                   &.where(event_type: 'added')

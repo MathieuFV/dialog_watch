@@ -1,6 +1,7 @@
 <div class="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto">
     
+    # Titre et date de la dernière synchro avec l'API DiaLog
     <div class="md:flex md:items-center md:justify-between mb-8">
       <div class="flex-1 min-w-0">
         <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl sm:truncate">
@@ -12,6 +13,7 @@
       </div>
     </div>
 
+    # Sélecteur de date
     <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm mb-8 border border-gray-100">
       <%= link_to dashboards_path(date: @selected_date - 1.day), class: "flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
         <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
@@ -38,6 +40,7 @@
       <% end %>
     </div>
 
+    # Cartes avec les indicateurs
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
       
       <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -72,6 +75,7 @@
         </h3>
       </div>
       
+      # Tableau des organisations ayant le plus contribué
       <ul role="list" class="divide-y divide-gray-200">
         <% if @is_today %>
           <% @top_orgs.each do |org| %>

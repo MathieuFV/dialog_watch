@@ -1,5 +1,7 @@
 require 'open-uri'
 
+# Ce script importe les données depuis l'API DiaLog et les enregistre dans la base de données
+
 class RegulationsImporter
   URL = "https://dialog.beta.gouv.fr/api/regulations.xml"
 
@@ -27,47 +29,44 @@ class RegulationsImporter
   private
 
   def process_node(node)
-    # 1. Extraction des données
     external_id = node['id']
     
-    # On cherche précisément dans issuingAuthority -> values -> value
-    # Le '&.text' évite le crash si le champ est vide
+    # On garde le nom de l'organisation dans issuingAuthority -> values -> value
     org_name = node.at_xpath('.//issuingAuthority/values/value')&.text&.strip || "Inconnu"
     
-    # Extraction des dates (souvent dans validityTimeSpecification)
+    # On extrait les dates de validité des arrêtés présents sur l'API
     start_date_str = node.at_xpath('.//overallStartTime')&.text
     end_date_str = node.at_xpath('.//overallEndTime')&.text
 
-    # Bonus : Essayons de capturer le type (ex: noEntry)
-    # On cherche n'importe quelle balise qui finit par 'Type' ou le typeOfRegulation
-    reg_type = node.at_xpath('.//accessRestrictionType')&.text || 
-               node.at_xpath('.//typeOfRegulation')&.attr('type') || 
+    # On extrait le type d'arrêté
+    reg_type = node.at_xpath('.//typeOfRegulation')&.attr('type') || 
                "Autre"
 
-    # 2. Gestion de l'Organisation
+    # On crée un enregistrement par organisation trouvée dans la base de données
     organization = Organization.find_or_create_by(name: org_name)
 
-    # 3. Gestion du Règlement
+    # On crée un enregistrement par arrêté trouvé dans la base de données
     regulation = Regulation.find_or_initialize_by(external_id: external_id)
     is_new = regulation.new_record?
 
+    # On assigne, pour chaque arrêté, l'organisation émettrice, les dates de validité, le type d'arrêté
     regulation.organization = organization
     regulation.start_date = start_date_str
     regulation.end_date = end_date_str
-    regulation.regulation_type = reg_type # On sauvegarde le type
+    regulation.regulation_type = reg_type
+    # Le champ "last_seen_at" permettra de savoir si un arrêté a disparu de la base de données
     regulation.last_seen_at = Time.current
 
     if regulation.save
       if is_new
         @stats[:created] += 1
-        print "+" # Un petit "+" pour une création
+        print "+" # On ajoute un signe "+" pour signaler la création d'un arrêté
       else
         @stats[:updated] += 1
-        print "." # Un petit "." pour une mise à jour
+        print "." # Le . signale la mise à jour d'un arrêté
       end
     else
       @stats[:errors] += 1
-      # On n'affiche l'erreur que si ce n'est pas juste un doublon d'ID (ce qui ne devrait pas arriver avec find_or_initialize)
       puts "\n❌ Erreur #{external_id} : #{regulation.errors.full_messages.join(', ')}"
     end
   end
