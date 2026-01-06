@@ -1,28 +1,25 @@
 class OrganizationsController < ApplicationController
     def index
+      # On récupère la date des paramètres, sinon aujourd'hui
+      @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.today
       @filter = params[:filter] || "all"
       
-      # Logique de filtrage
+      # On définit la limite de temps : fin de la journée sélectionnée
+      limit_date = @selected_date.to_time.end_of_day
+  
+      # Requête de base : on ne compte que les arrêtés créés AVANT ou PENDANT cette date
+      query = Organization.joins(:regulations)
+                          .where("regulations.created_at <= ?", limit_date)
+  
       case @filter
       when "permanent"
-        # Un arrêté est permanent s'il n'a pas de date de fin
-        @organizations = Organization.joins(:regulations)
-                                     .where(regulations: { end_date: nil })
-                                     .group(:id)
-                                     .select("organizations.*, COUNT(regulations.id) as regs_count")
-                                     .order("regs_count DESC")
+        query = query.where(regulations: { end_date: nil })
       when "temporary"
-        # Un arrêté est temporaire s'il a une date de fin
-        @organizations = Organization.joins(:regulations)
-                                     .where.not(regulations: { end_date: nil })
-                                     .group(:id)
-                                     .select("organizations.*, COUNT(regulations.id) as regs_count")
-                                     .order("regs_count DESC")
-      else
-        @organizations = Organization.joins(:regulations)
-                                     .group(:id)
-                                     .select("organizations.*, COUNT(regulations.id) as regs_count")
-                                     .order("regs_count DESC")
+        query = query.where.not(regulations: { end_date: nil })
       end
+  
+      @organizations = query.group(:id)
+                            .select("organizations.*, COUNT(regulations.id) as regs_count")
+                            .order("regs_count DESC")
     end
   end
