@@ -92,7 +92,7 @@ production:
   primary: &primary_production
     adapter: postgresql
     url: <%= ENV["DATABASE_URL"] %>
-  qqueue:
+  queue:
     <<: *primary_production
     migrations_paths: db/queue_migrate
     
