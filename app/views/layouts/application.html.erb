@@ -18,6 +18,15 @@
 
   <body class="h-full antialiased text-gray-900">
     <main class="min-h-full">
+      <% if flash.any? %>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <% flash.each do |type, message| %>
+            <div class="p-4 rounded-md <%= type == 'notice' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+              <%= message %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
       <%= yield %>
     </main>
   </body>
