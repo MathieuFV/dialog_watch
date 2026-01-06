@@ -12,6 +12,29 @@
       </div>
     </div>
 
+    <% if notice %>
+      <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 text-sm">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <div class="md:flex md:items-center md:justify-between mb-8">
+      <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">Dialog Watch</h2>
+        </div>
+      
+      <div class="mt-4 flex md:mt-0 md:ml-4">
+        <%= button_to refresh_data_path, method: :post, 
+            class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700",
+            data: { 
+              turbo: false, # Force un vrai rechargement de page après l'action
+              confirm: "Voulez-vous vraiment lancer une synchronisation manuelle ?" 
+            } do %>
+          Synchroniser
+        <% end %>
+      </div>
+    </div>
+
     <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm mb-8 border border-gray-100">
       <%= link_to dashboards_path(date: @selected_date - 1.day), class: "flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500" do %>
         <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>

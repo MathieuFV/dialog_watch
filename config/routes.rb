@@ -14,4 +14,6 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root 'dashboards#index'
+  # Route pour le rafraîchissement manuel des données
+  post 'refresh_data', to: 'dashboards#refresh_data', as: :refresh_data
 end

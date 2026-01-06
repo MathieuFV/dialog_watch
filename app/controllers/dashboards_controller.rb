@@ -3,33 +3,42 @@ class DashboardsController < ApplicationController
     # Gestion du sélecteur de date
     @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.today
     @is_today = @selected_date == Date.today
+    @snapshot = DailySnapshot.find_by(date: @selected_date)
 
     # Pour la date sélectionnée, récupérer le snapshot de la base de données de ce jour là
     @snapshot = DailySnapshot.find_by(date: @selected_date)
 
     # Calcul des indicateurs du dashboard pour le snapshot séléctionné
     if @is_today
-      # Si on reste sur la date du jour, les dernières données sont stockées dans la base de données
-      # 'chaude', on peut donc utiliser les fonctions natives pour faire les calculs (count, maximum, ...)
       @org_count = Organization.count
       @reg_count = Regulation.count
-      @last_update = Regulation.maximum(:last_seen_at)
+      @last_update = DailySnapshot.maximum(:updated_at)
+      
       @top_orgs = Organization.joins(:regulations)
                               .group(:id)
                               .order('COUNT(regulations.id) DESC')
                               .limit(5)
     else
-      # Si on est sur une date antérieure, on récupère les données à afficher dans la table snapshot
       @org_count = @snapshot&.total_organizations || 0
       @reg_count = @snapshot&.total_regulations || 0
-      @last_update = @selected_date.to_time.end_of_day
+      @last_update = @snapshot&.updated_at
       
       @top_orgs_events = @snapshot&.snapshot_events
                                   &.where(event_type: 'added')
                                   &.group(:organization_id)
-                                  &.count 
+                                  &.count
                                   &.sort_by { |_id, count| -count }
-                                  &.first(5)
+                                  &.first(5) || []
     end
+  end
+
+  # On ajoute une action pour rafraîchir les données à la main depuis l'interface
+  def refresh_data
+    # On lance le job en arrière-plan
+    WatchdogJob.perform_now
+  
+    # On redirige vers le dashboard avec un message de succès
+    flash[:notice] = "Import des données en cours..."
+    redirect_to root_path
   end
 end
