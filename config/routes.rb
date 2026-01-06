@@ -16,4 +16,6 @@ Rails.application.routes.draw do
   root 'dashboards#index'
   # Route pour le rafraîchissement manuel des données
   post 'refresh_data', to: 'dashboards#refresh_data', as: :refresh_data
+
+  resources :organizations, only: [:index]
 end

@@ -32,13 +32,12 @@ class DashboardsController < ApplicationController
     end
   end
 
-  # On ajoute une action pour rafraîchir les données à la main depuis l'interface
+  # Rafraîchissement manuel des données depuis l'interface
   def refresh_data
-    # 1. Le serveur exécute l'import (le navigateur attend ici)
+    # Exécuter le script d'import via le job (en arrière-plan)
     WatchdogJob.perform_now 
   
-    # 2. Une fois fini, on redirige normalement. 
-    # Turbo (côté navigateur) verra la redirection et rechargera la page de destination.
+    # Rafraîchir la page après la fin de l'import 
     redirect_to root_path, status: :see_other
   end
 end

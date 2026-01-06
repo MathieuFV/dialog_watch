@@ -2,18 +2,16 @@ class WatchdogJob < ApplicationJob
   queue_as :default
 
   def perform
-    # 1. On lance le VRAI script d'import
+    # Exécuter le service d'import des données
     RegulationsImporter.new.perform 
 
-    # 2. Une fois fini, on s'occupe du Snapshot
+    # Mettre à jour le snapshot
     today = Time.zone.today
     snapshot = DailySnapshot.find_or_create_by!(date: today)
 
-    # 3. Mise à jour des indicateurs réels
     snapshot.update!(
       total_organizations: Organization.count,
       total_regulations: Regulation.count,
-      # Optionnel : compter les nouveautés du jour
       added_regulations: Regulation.where("created_at >= ?", today.beginning_of_day).count,
       updated_at: Time.current
     )
