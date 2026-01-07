@@ -18,12 +18,20 @@ class DashboardsController < ApplicationController
     end
 
     # Nouveau calcul unifié du Top 5 pour la date sélectionnée
-    @top_orgs = Organization.joins(:regulations)
-                            .where("regulations.created_at <= ?", limit_date)
-                            .group(:id)
-                            .select("organizations.*, COUNT(regulations.id) as regs_count")
-                            .order("regs_count DESC")
-                            .limit(5)
+    query = Organization.joins(:regulations)
+    if @is_today
+      # Aujourd'hui : on ne prend que les actifs
+      query = query.merge(Regulation.active)
+    else
+      # Passé : on prend ce qui existait à l'époque et qui était encore "vu"
+      query = query.where("regulations.created_at <= ?", @selected_date.end_of_day)
+                  .where("regulations.last_seen_at >= ?", @selected_date.beginning_of_day)
+    end
+
+    @top_orgs = query.group(:id)
+                    .select("organizations.*, COUNT(regulations.id) as regs_count")
+                    .order("regs_count DESC")
+                    .limit(5)
 
     # On conserve les événements spécifiques au snapshot si besoin
     @top_orgs_events = @snapshot&.snapshot_events
