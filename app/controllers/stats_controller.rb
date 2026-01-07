@@ -3,7 +3,7 @@ class StatsController < ApplicationController
       @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.today
       @is_today = @selected_date == Date.today
   
-      # 1. Calcul de la distribution
+      # Calcul du nombre d'arrêtés par organisation
       query = Organization.joins(:regulations)
       if @is_today
         query = query.merge(Regulation.active)
@@ -12,14 +12,13 @@ class StatsController < ApplicationController
                      .where("regulations.last_seen_at >= ?", @selected_date.beginning_of_day)
       end
   
-      # Récupère le compte par organisation : { org_id => count }
       counts = query.group(:id).count.values
       
-      # 2. Groupe par quantité : { 10 arrêtés => 5 orgs, 11 arrêtés => 2 orgs... }
-      # On trie par la quantité (X)
+      # On fait des groupes par nombre d'arrêtés publiés
       @distribution_data = counts.tally.sort.to_h
   
-      # 3. Paramètres pour le graphique (Axe X = Quantité, Axe Y = Nombre d'orgs)
+      # Sur les abscisses on met la quantité d'arrêtés publiés, sur les ordonnées le nombre d'organisation qui ont 
+      # publié cette quantité d'arrêtés.
       @max_x = @distribution_data.keys.max || 0
       @max_y = @distribution_data.values.max || 0
       @total_orgs = counts.size

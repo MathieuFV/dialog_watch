@@ -4,7 +4,6 @@ class OrganizationsController < ApplicationController
     @is_today = @selected_date == Date.today
     @filter = params[:filter] || "all"
     
-    # Construction de la requête de base
     query = Organization.joins(:regulations)
   
     if @is_today
@@ -14,7 +13,7 @@ class OrganizationsController < ApplicationController
                    .where("regulations.last_seen_at >= ?", @selected_date.beginning_of_day)
     end
   
-    # Application des filtres de type
+    # Filtres par type d'arrêté
     case @filter
     when "permanent"
       query = query.where(regulations: { end_date: nil })

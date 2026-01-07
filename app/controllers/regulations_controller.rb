@@ -3,22 +3,21 @@ class RegulationsController < ApplicationController
       @selected_date = params[:date].present? ? Date.parse(params[:date]) : Date.today
       @is_today = @selected_date == Date.today
       
-      # 1. Définition de la requête de base selon la date
+      # Selon le cas (date aujourd'hui ou date antérieure) on construit des requêtes différentes.
       if @is_today
-        # Situation LIVE : Uniquement les arrêtés marqués actifs aujourd'hui
+        # Date d'aujourd'hui en utilisant les données chaudes
         @base_query = Regulation.active
       else
-        # Situation HISTORIQUE :
+        # Date antérieure en utilisant les données froides (snapshot)
         # Créés avant la fin du jour choisi ET vus pour la dernière fois après le début du jour choisi
-        # (Cela exclut les arrêtés qui étaient déjà "fantômes" à cette date)
         @base_query = Regulation.where("created_at <= ?", @selected_date.end_of_day)
                                 .where("last_seen_at >= ?", @selected_date.beginning_of_day)
       end
   
-      # 2. Calcul des Statistiques
+      # Calcul du total d'arrêtés à l'aide de la requête
       @total_count = @base_query.count
       
-      # Évite la division par zéro si la base est vide pour un jour donné
+      # Si la base est vide sur un jour donné on divise par 0, donc on évite ça avec une conditionnelle
       if @total_count > 0
         @permanent_count = @base_query.where(end_date: nil).count
         @temporary_count = @total_count - @permanent_count
@@ -35,7 +34,7 @@ class RegulationsController < ApplicationController
         @type_distribution = []
       end
   
-      # 3. Liste pour le tableau (avec jointures pour la performance)
+      # On liste les arrêtés trouvés dans un tableau (limité aux 100 premiers pour l'instant pour perf)
       @regulations = @base_query.includes(:organization, :restrictions)
                                 .order(created_at: :desc)
                                 .limit(100)

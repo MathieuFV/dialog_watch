@@ -17,13 +17,13 @@ class DashboardsController < ApplicationController
       @last_update = @snapshot&.updated_at
     end
 
-    # Nouveau calcul unifié du Top 5 pour la date sélectionnée
+    # Calcul du top 5 des organisations contributrice pour la journée sélectionnée.
     query = Organization.joins(:regulations)
     if @is_today
-      # Aujourd'hui : on ne prend que les actifs
+      # On ne compte que les arrêtés actifs pour la date du jour
       query = query.merge(Regulation.active)
     else
-      # Passé : on prend ce qui existait à l'époque et qui était encore "vu"
+      # Pour les jours antérieurs, on compte ceux qui étaient déjà connus à ce moment là et qui ont été vu à la date choisie
       query = query.where("regulations.created_at <= ?", @selected_date.end_of_day)
                   .where("regulations.last_seen_at >= ?", @selected_date.beginning_of_day)
     end
@@ -33,7 +33,6 @@ class DashboardsController < ApplicationController
                     .order("regs_count DESC")
                     .limit(5)
 
-    # On conserve les événements spécifiques au snapshot si besoin
     @top_orgs_events = @snapshot&.snapshot_events
                                 &.where(event_type: 'added')
                                 &.group(:organization_id)
@@ -44,7 +43,7 @@ class DashboardsController < ApplicationController
 
   # Rafraîchissement manuel des données depuis l'interface
   def refresh_data
-    # Exécuter le script d'import via le job (en arrière-plan)
+    # Le job Watchdof exécute le script d'import de données en arrière-plan
     WatchdogJob.perform_now 
   
     # Rafraîchir la page après la fin de l'import 
