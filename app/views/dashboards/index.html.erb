@@ -92,40 +92,26 @@
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h3 class="text-lg leading-6 font-medium text-gray-900">
-          <%= @is_today ? "Top 5 des Contributeurs Globaux" : "Top 5 de l'activité du jour" %>
+          Top 5 des contributeurs au <%= l(@selected_date, format: :long) %>
         </h3>
       </div>
       
       <ul role="list" class="divide-y divide-gray-200">
-        <% if @is_today %>
+        <% if @top_orgs.any? %>
           <% @top_orgs.each do |org| %>
             <li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
               <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-indigo-600 truncate"><%= org.name %></p>
                 <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                  <%= org.regulations.count %> arrêtés au total
+                  <%= org.regs_count %> arrêtés au total
                 </span>
               </div>
             </li>
           <% end %>
         <% else %>
-          <% if @top_orgs_events&.any? %>
-            <% @top_orgs_events.each do |org_id, count| %>
-              <% org = Organization.find(org_id) %>
-              <li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
-                <div class="flex items-center justify-between">
-                  <p class="text-sm font-medium text-indigo-600 truncate"><%= org.name %></p>
-                  <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    + <%= count %> nouveaux ce jour
-                  </span>
-                </div>
-              </li>
-            <% end %>
-          <% else %>
-            <li class="px-4 py-10 text-center text-gray-500 italic">
-              Aucun événement enregistré pour cette date.
-            </li>
-          <% end %>
+          <li class="px-4 py-10 text-center text-gray-500 italic">
+            Aucune donnée disponible pour cette date.
+          </li>
         <% end %>
       </ul>
     </div>
