@@ -3,3 +3,9 @@ fr:
     formats:
       # Format date et heure français nommé "complet"
       complet: "le %A %d %B %Y à %Hh%M"
+  # Traductions des formats DATEX en français
+  regulations:
+    types:
+      AccessRestriction: "Circulation"
+      StandingOrParkingRestriction: "Stationnement"
+      SpeedLimit: "Vitesse"
