@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_05_170051) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_07_085400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,8 +40,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_05_170051) do
     t.datetime "last_seen_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "regulation_id"
+    t.boolean "active", default: true, null: false
     t.index ["external_id"], name: "index_regulations_on_external_id", unique: true
     t.index ["organization_id"], name: "index_regulations_on_organization_id"
+  end
+
+  create_table "restrictions", force: :cascade do |t|
+    t.bigint "regulation_id", null: false
+    t.string "restriction_type"
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["regulation_id"], name: "index_restrictions_on_regulation_id"
   end
 
   create_table "snapshot_events", force: :cascade do |t|
@@ -57,6 +69,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_05_170051) do
   end
 
   add_foreign_key "regulations", "organizations"
+  add_foreign_key "restrictions", "regulations"
   add_foreign_key "snapshot_events", "daily_snapshots"
   add_foreign_key "snapshot_events", "organizations"
   add_foreign_key "snapshot_events", "regulations"

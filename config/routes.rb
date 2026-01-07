@@ -18,4 +18,5 @@ Rails.application.routes.draw do
   post 'refresh_data', to: 'dashboards#refresh_data', as: :refresh_data
 
   resources :organizations, only: [:index]
+  resources :regulations, only: [:index]
 end

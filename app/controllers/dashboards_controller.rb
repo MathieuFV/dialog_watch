@@ -8,8 +8,8 @@ class DashboardsController < ApplicationController
     limit_date = @selected_date.to_time.end_of_day
 
     if @is_today
-      @org_count = Organization.count
-      @reg_count = Regulation.count
+      @org_count = Organization.joins(:regulations).merge(Regulation.active).distinct.count
+      @reg_count = Regulation.active.count
       @last_update = DailySnapshot.maximum(:updated_at)
     else
       @org_count = @snapshot&.total_organizations || 0
