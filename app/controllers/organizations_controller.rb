@@ -7,7 +7,7 @@ class OrganizationsController < ApplicationController
       # On définit la limite de temps : fin de la journée sélectionnée
       limit_date = @selected_date.to_time.end_of_day
   
-      # Requête de base : on ne compte que les arrêtés créés AVANT ou PENDANT cette date
+      # On ne compte que les arrêtés créés AVANT ou PENDANT cette date
       query = Organization.joins(:regulations)
                           .where("regulations.created_at <= ?", limit_date)
   
