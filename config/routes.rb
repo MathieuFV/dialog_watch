@@ -19,4 +19,6 @@ Rails.application.routes.draw do
 
   resources :organizations, only: [:index]
   resources :regulations, only: [:index]
+
+  get "stats/distribution", to: "stats#distribution", as: :stats_distribution
 end

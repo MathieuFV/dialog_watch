@@ -1,0 +1,74 @@
+<div class="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    
+    <div class="mb-8">
+      <%= link_to dashboards_path(date: @selected_date), class: "text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center mb-4" do %>
+        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        Retour au Dashboard
+      <% end %>
+
+      <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">Répartition des publications</h2>
+      
+      <div class="mt-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800 border border-amber-200">
+        <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z"/></svg>
+        Données du : <%= l(@selected_date, format: :long) %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
+      <div class="bg-white p-6 shadow rounded-lg border-l-4 border-indigo-500">
+        <dt class="text-sm font-medium text-gray-500 uppercase">Moyenne réelle</dt>
+        <dd class="text-2xl font-bold text-gray-900"><%= @average %> <span class="text-sm font-normal text-gray-400">arrêtés / org</span></dd>
+      </div>
+      <div class="bg-white p-6 shadow rounded-lg border-l-4 border-green-500">
+        <dt class="text-sm font-medium text-gray-500 uppercase">Maximum publié</dt>
+        <dd class="text-2xl font-bold text-gray-900"><%= @max_x %></dd>
+      </div>
+      <div class="bg-white p-6 shadow rounded-lg border-l-4 border-blue-500">
+        <dt class="text-sm font-medium text-gray-500 uppercase">Pic de fréquence</dt>
+        <dd class="text-2xl font-bold text-gray-900"><%= @max_y %> <span class="text-sm font-normal text-gray-400">orgs ont le même volume</span></dd>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 shadow rounded-lg">
+      <h3 class="text-sm font-medium text-gray-500 uppercase mb-8">Fréquence du nombre d'arrêtés par organisation</h3>
+      
+      <div class="relative h-96 w-full px-12 pb-12">
+        <svg viewBox="0 0 1000 400" preserveAspectRatio="none" class="h-full w-full overflow-visible">
+          <% offset_x = 5 %>
+          <% chart_width = 960 %> <%# 1000 - offset_x %>
+          <% chart_height = 380 %>
+
+          <% [0, 0.25, 0.5, 0.75, 1].each do |p| %>
+            <% y_val = chart_height - (p * chart_height) %>
+            <line x1="<%= offset_x %>" y1="<%= y_val %>" x2="1000" y2="<%= y_val %>" stroke="#f3f4f6" stroke-width="1" />
+            <text x="<%= offset_x - 10 %>" y="<%= y_val %>" text-anchor="end" alignment-baseline="middle" class="text-[12px] fill-gray-400 font-sans">
+              <%= (@max_y * p).to_i %>
+            </text>
+          <% end %>
+
+          <% @distribution_data.each do |qty, org_count| %>
+            <% 
+              x_pos = offset_x + (qty.to_f / @max_x * (chart_width - 20))
+              height = (org_count.to_f / @max_y * chart_height)
+              bar_width = [3, (chart_width.to_f / (@max_x + 1)) * 0.8].max
+            %>
+            <rect x="<%= x_pos %>" y="<%= chart_height - height %>" width="<%= bar_width %>" height="<%= height %>" class="fill-indigo-500 hover:fill-indigo-400 transition-colors">
+              <title><%= org_count %> organisations ont publié <%= qty %> arrêtés</title>
+            </rect>
+          <% end %>
+
+          <%# Axes %>
+          <line x1="<%= offset_x %>" y1="<%= chart_height %>" x2="1000" y2="<%= chart_height %>" stroke="#d1d5db" stroke-width="2" />
+          <line x1="<%= offset_x %>" y1="0" x2="<%= offset_x %>" y2="<%= chart_height %>" stroke="#d1d5db" stroke-width="2" />
+        </svg>
+
+        <div class="mt-2 flex justify-between text-xs text-gray-400 font-medium ml-10">
+          <span>0 arrêté</span>
+          <span class="text-gray-500 uppercase tracking-wider text-[10px]">Quantité d'arrêtés publiés par organisation</span>
+          <span><%= @max_x %> arrêtés</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -73,34 +73,38 @@
 
             
       <%= link_to regulations_path(date: @selected_date), class: "bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow group" do %>
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="px-4 py-5 sm:p-6">
-            <dt class="text-sm font-medium text-gray-500 truncate">
-              Arrêtés Actifs
-            </dt>
-            <dd class="mt-1 text-3xl font-semibold text-green-600">
-              <%= @reg_count %>
-            </dd>
+        <div class="px-4 py-5 sm:p-6">
+          <dt class="text-sm font-medium text-gray-500 truncate">
+            Arrêtés Actifs
+          </dt>
+          <dd class="mt-1 text-3xl font-semibold text-green-600">
+            <%= @reg_count %>
+          </dd>
 
-            <dd class="mt-3 flex items-center text-xs text-green-600 font-medium group-hover:text-green-500">
-              <span>Voir plus</span>
-              <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
-            </dd>
-
-          </div>
+          <dd class="mt-3 flex items-center text-xs text-green-600 font-medium group-hover:text-green-500">
+            <span>Voir plus</span>
+            <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </dd>
         </div>
       <% end %>
 
-      <div class="bg-white overflow-hidden shadow rounded-lg">
+      <%= link_to stats_distribution_path(date: @selected_date), class: "bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow group" do %>
         <div class="px-4 py-5 sm:p-6">
-          <dt class="text-sm font-medium text-gray-500 truncate">Moyenne par Organisation</dt>
-          <dd class="mt-1 text-3xl font-semibold text-gray-900">
-            <%= @org_count > 0 ? (@reg_count.to_f / @org_count).round(1) : 0 %>
+          <dt class="text-sm font-medium text-gray-500 truncate">Moyenne par organisation</dt>
+          <dd class="mt-1 text-3xl font-semibold text-orange-600">
+            <%= (@reg_count.to_f / (@org_count.nonzero? || 1)).round(1) %>
+          </dd>
+          <dd class="mt-3 flex items-center text-xs text-orange-600 font-medium group-hover:text-orange-500">
+            <span>Voir la répartition</span>
+            <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
           </dd>
         </div>
-      </div>
+      <% end %>
 
     </div>
 
