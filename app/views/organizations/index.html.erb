@@ -38,7 +38,11 @@
           <% @organizations.each_with_index do |org, index| %>
             <tr class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-500">#<%= index + 1 %></td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 w-full"><%= org.name %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 w-full">
+                <p class="text-sm font-medium text-indigo-600 truncate">
+                  <%= link_to org.name, organization_path(org, date: @selected_date), class: "hover:underline" %>
+                </p>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-semibold"><%= org.regs_count %></td>
             </tr>
           <% end %>

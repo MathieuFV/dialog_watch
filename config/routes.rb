@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   # Route pour le rafraîchissement manuel des données
   post 'refresh_data', to: 'dashboards#refresh_data', as: :refresh_data
 
-  resources :organizations, only: [:index]
+  resources :organizations, only: [:index, :show]
   resources :regulations, only: [:index]
 
   get "stats/distribution", to: "stats#distribution", as: :stats_distribution

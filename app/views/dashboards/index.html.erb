@@ -120,7 +120,9 @@
           <% @top_orgs.each do |org| %>
             <li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
               <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-indigo-600 truncate"><%= org.name %></p>
+                <p class="text-sm font-medium text-indigo-600 truncate">
+                  <%= link_to org.name, organization_path(org, date: @selected_date), class: "hover:underline" %>
+                </p>
                 <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
                   <%= org.regs_count %> arrêtés au total
                 </span>
