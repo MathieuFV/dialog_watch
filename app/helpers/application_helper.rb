@@ -1,6 +1,26 @@
 module ApplicationHelper
-    # Cette méthode retourne la classe CSS COMPLÈTE pour le background.
-    # Tailwind verra 'bg-blue-500' écrit en dur ici et générera le CSS.
+    # -------------------------------------------------------------------------
+    # MÉTHODES DE STYLE (TAILWIND)
+    # On retourne les classes en toutes lettres pour que le compilateur les détecte.
+    # -------------------------------------------------------------------------
+  
+    # 1. Pour les Badges (Fond clair + Texte foncé)
+    def badge_class_for_type(type)
+      case type
+      when 'AccessRestriction', 'Restriction de circulation'
+        'bg-blue-100 text-blue-800'
+      when 'StandingOrParkingRestriction', 'Restriction de stationnement'
+        'bg-amber-100 text-amber-800'
+      when 'SpeedLimit', 'Limitation de vitesse'
+        'bg-rose-100 text-rose-800'
+      when 'Multi-type'
+        'bg-slate-100 text-slate-800'
+      else
+        'bg-gray-100 text-gray-800'
+      end
+    end
+  
+    # 2. Pour les Barres de progression (Fond vif -500)
     def progress_bar_class_for_type(type)
       case type
       when 'AccessRestriction', 'Restriction de circulation'
@@ -16,8 +36,37 @@ module ApplicationHelper
       end
     end
   
-    # On garde celle-ci pour tes badges (qui utilisent bg-COLOR-100)
-    # Mais idéalement, on devrait faire pareil : retourner "bg-blue-100 text-blue-800"
+    # 3. Pour les Puces / Dots (Fond moyen -400)
+    def dot_class_for_type(type)
+      case type
+      when 'AccessRestriction', 'Restriction de circulation'
+        'bg-blue-400'
+      when 'StandingOrParkingRestriction', 'Restriction de stationnement'
+        'bg-amber-400'
+      when 'SpeedLimit', 'Limitation de vitesse'
+        'bg-rose-400'
+      when 'Multi-type'
+        'bg-slate-400'
+      else
+        'bg-gray-400'
+      end
+    end
+  
+    # -------------------------------------------------------------------------
+    # GÉNÉRATEURS HTML
+    # -------------------------------------------------------------------------
+  
+    # Génère le badge HTML complet
+    def type_badge(type)
+      # On récupère les classes CSS explicites via la méthode ci-dessus
+      css_classes = badge_class_for_type(type)
+      translated_type = t("regulations.types.#{type}", default: type)
+      
+      content_tag(:span, translated_type, 
+        class: "px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{css_classes}")
+    end
+  
+    # Gardé pour compatibilité si tu l'utilises ailleurs pour juste avoir le nom de la couleur
     def color_for_type(type)
       case type
       when 'AccessRestriction', 'Restriction de circulation' then 'blue'
@@ -27,29 +76,4 @@ module ApplicationHelper
       else 'gray'
       end
     end
-  
-    def type_badge(type)
-      color = color_for_type(type)
-      translated_type = t("regulations.types.#{type}", default: type)
-      
-      # Ici, assure-toi que tes commentaires Safelist sont bien là pour les badges
-      # Ou utilise une méthode dédiée qui retourne les classes complètes
-      content_tag(:span, translated_type, 
-        class: "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-#{color}-100 text-#{color}-800")
-    end
-
-    def dot_class_for_type(type)
-        case type
-        when 'AccessRestriction', 'Restriction de circulation'
-          'bg-blue-400'
-        when 'StandingOrParkingRestriction', 'Restriction de stationnement'
-          'bg-amber-400'
-        when 'SpeedLimit', 'Limitation de vitesse'
-          'bg-rose-400'
-        when 'Multi-type'
-          'bg-slate-400'
-        else
-          'bg-gray-400'
-        end
-      end
   end
