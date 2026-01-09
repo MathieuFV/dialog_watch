@@ -38,5 +38,7 @@ class RegulationsController < ApplicationController
       @regulations = @base_query.includes(:organization, :restrictions)
                                 .order(created_at: :desc)
                                 .limit(100)
+    
+    @pagy, @regulations = pagy(@base_query.includes(:organization, :restrictions).order(created_at: :desc), items: 25)
     end
   end

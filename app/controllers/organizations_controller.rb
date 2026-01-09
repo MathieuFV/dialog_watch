@@ -52,5 +52,12 @@ class OrganizationsController < ApplicationController
       @restriction_counts = @regulations.joins(:restrictions)
                                         .group("restrictions.restriction_type")
                                         .count
+      
+      @pagy, @regulations = pagy(
+        @organization.regulations.where("created_at <= ?", @selected_date.end_of_day)
+                                  .where("last_seen_at >= ?", @selected_date.beginning_of_day)
+                                  .order(created_at: :desc),
+        items: 25
+      )
     end
   end

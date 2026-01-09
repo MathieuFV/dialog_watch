@@ -68,3 +68,5 @@ group :test do
 end
 
 gem "foreman", "~> 0.90.0"
+
+gem "pagy", '~> 43.2'
