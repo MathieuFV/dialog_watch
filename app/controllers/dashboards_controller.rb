@@ -43,10 +43,10 @@ class DashboardsController < ApplicationController
 
   # Rafraîchissement manuel des données depuis l'interface
   def refresh_data
-    # Le job Watchdog exécute le script d'import de données en arrière-plan
-    WatchdogJob.perform_later
+    # Le job Watchdog exécute le script d'import de données au premier plan
+    WatchdogJob.perform_now
   
-    # Informer l'utilisateur que l'import a démarré
-    redirect_to root_path, notice: "La synchronisation a démarré en tâche de fond. Actualisez la page dans quelques instants."
+    # Rafraîchir la page après la fin de l'import 
+    redirect_to root_path
   end
 end
