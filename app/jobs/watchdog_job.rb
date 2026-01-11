@@ -2,17 +2,20 @@ class WatchdogJob < ApplicationJob
   queue_as :default
 
   def perform
-    # Exécuter le service d'import des données
-    RegulationsImporter.new.perform 
-
-    # Mettre à jour le snapshot
     today = Time.zone.today
+    
+    # On initialise le snapshot en début de traitement
     snapshot = DailySnapshot.find_or_create_by!(date: today)
 
+    # Exécuter le service d'import en lui passant le snapshot pour l'historisation
+    RegulationsImporter.new(daily_snapshot: snapshot).perform 
+
+    # Mettre à jour les compteurs du snapshot
     snapshot.update!(
       total_organizations: Organization.count,
       total_regulations: Regulation.count,
-      added_regulations: Regulation.where("created_at >= ?", today.beginning_of_day).count,
+      added_regulations: snapshot.snapshot_events.where(event_type: 'added').count,
+      removed_regulations: snapshot.snapshot_events.where(event_type: 'removed').count,
       updated_at: Time.current
     )
     

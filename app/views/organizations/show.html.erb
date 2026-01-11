@@ -44,13 +44,8 @@
         <div class="space-y-3">
           <% if @restriction_counts.any? %>
             <% @restriction_counts.each do |type, count| %>
-                <%# MODIFICATION : Utilisation du helper pour la puce (dot) %>
-                <% dot_class = dot_class_for_type(type) %>
                 <div class="flex justify-between items-center text-sm">
-                    <span class="flex items-center text-gray-600">
-                    <%# La classe est écrite en dur par le helper, Tailwind la détecte %>
-                    <span class="h-2 w-2 rounded-full <%= dot_class %> mr-2"></span>
-                    <%= t("regulations.types.#{type}", default: type) %></span>
+                    <%= type_badge(type) %>
                     <span class="font-mono font-bold text-gray-700"><%= count %></span>
                 </div>
             <% end %>

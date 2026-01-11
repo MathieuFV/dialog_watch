@@ -3,8 +3,9 @@ require 'open-uri'
 class RegulationsImporter
   URL = "https://dialog.beta.gouv.fr/api/regulations.xml"
 
-  def initialize
+  def initialize(daily_snapshot: nil)
     @stats = { created: 0, updated: 0, errors: 0, restrictions: 0 }
+    @daily_snapshot = daily_snapshot
   end
 
   def perform
@@ -14,7 +15,7 @@ class RegulationsImporter
     # garder que les arrêtés encore en vigueur au moment de l'import.
     import_start_time = Time.current
     
-    xml_data = URI.open(URL)
+    xml_data = fetch_stream(URL)
     doc = Nokogiri::XML(xml_data)
 
     # On enlève les namespaces DATEX pour simplifier la recherche des noeuds
@@ -27,7 +28,20 @@ class RegulationsImporter
     nodes.each { |node| process_node(node) }
 
     # Tous les arrêtés plus anciens que l'heure de l'import sont marqués en active : false
+    # Tous les arrêtés plus anciens que l'heure de l'import sont marqués en active : false
     orphans = Regulation.active.where("last_seen_at < ?", import_start_time)
+    
+    # Création des événements de suppression si un snapshot est présent
+    if @daily_snapshot
+      orphans.each do |orphan|
+        @daily_snapshot.snapshot_events.create!(
+          organization: orphan.organization,
+          regulation: orphan,
+          event_type: 'removed'
+        )
+      end
+    end
+
     count_deactivated = orphans.update_all(active: false)
 
     puts "\n🧹 Nettoyage terminé : #{count_deactivated} arrêtés marqués comme inactifs."
@@ -35,6 +49,10 @@ class RegulationsImporter
   end
 
   private
+  
+  def fetch_stream(url)
+    URI.open(url)
+  end
 
   def process_node(node)
     # On garde l'identifiant DiaLog de chaque arrêté
@@ -84,6 +102,16 @@ class RegulationsImporter
       )
   
       is_new ? @stats[:created] += 1 : @stats[:updated] += 1
+      
+      # Enregistrement de l'événement d'ajout
+      if is_new && @daily_snapshot
+        @daily_snapshot.snapshot_events.create!(
+          organization: organization,
+          regulation: regulation,
+          event_type: 'added'
+        )
+      end
+
       print(is_new ? "+" : ".")
     else
       @stats[:errors] += 1
