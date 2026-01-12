@@ -18,6 +18,12 @@
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 mb-8">
       <div class="bg-white p-6 shadow rounded-lg">
         <h3 class="text-sm font-medium text-gray-500 uppercase">Nature des arrêtés</h3>
+        
+        <div class="mt-2 flex items-baseline">
+          <span class="text-3xl font-bold text-gray-900"><%= @total_count %></span>
+          <span class="ml-2 text-sm font-medium text-gray-500">arrêtés actifs</span>
+        </div>
+
         <div class="mt-4">
           <div class="flex h-4 overflow-hidden rounded bg-gray-100 text-xs">
             <% perm_percent = @total_count.positive? ? (@permanent_count.to_f / @total_count * 100).round(1) : 0 %>
@@ -25,14 +31,14 @@
             <div style="width: <%= 100 - perm_percent %>%" class="bg-green-400 shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center"></div>
           </div>
           <div class="flex justify-between mt-3 text-sm">
-            <div class="flex items-center"><span class="h-3 w-3 bg-indigo-600 rounded-full mr-2"></span> Permanents (<%= perm_percent %>%)</div>
-            <div class="flex items-center"><span class="h-3 w-3 bg-green-400 rounded-full mr-2"></span> Temporaires (<%= (100 - perm_percent).round(1) %>%)</div>
+            <div class="flex items-center"><span class="h-3 w-3 bg-indigo-600 rounded-full mr-2"></span> Permanents (<%= perm_percent %>% • <%= @permanent_count %>)</div>
+            <div class="flex items-center"><span class="h-3 w-3 bg-green-400 rounded-full mr-2"></span> Temporaires (<%= (100 - perm_percent).round(1) %>% • <%= @temporary_count %>)</div>
           </div>
         </div>
       </div>
 
     <div class="bg-white p-6 shadow rounded-lg">
-        <h3 class="text-sm font-medium text-gray-500 uppercase">Décomptes par type de restriction</h3>
+        <h3 class="text-sm font-medium text-gray-500 uppercase">Décomptes des restrictions par type</h3>
         <div class="mt-2 space-y-2">
             <% @type_distribution.first(3).each do |type, count| %>
             
