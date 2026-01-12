@@ -35,14 +35,21 @@
       
       <div class="relative h-96 w-full px-12 pb-12">
         <svg viewBox="0 0 1000 400" preserveAspectRatio="none" class="h-full w-full overflow-visible">
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4f46e5" /> <!-- indigo-600 -->
+              <stop offset="100%" stop-color="#818cf8" /> <!-- indigo-400 -->
+            </linearGradient>
+          </defs>
+
           <% offset_x = 5 %>
           <% chart_width = 960 %> <%# 1000 - offset_x %>
           <% chart_height = 380 %>
 
           <% [0, 0.25, 0.5, 0.75, 1].each do |p| %>
             <% y_val = chart_height - (p * chart_height) %>
-            <line x1="<%= offset_x %>" y1="<%= y_val %>" x2="1000" y2="<%= y_val %>" stroke="#f3f4f6" stroke-width="1" />
-            <text x="<%= offset_x - 10 %>" y="<%= y_val %>" text-anchor="end" alignment-baseline="middle" class="text-[12px] fill-gray-400 font-sans">
+            <line x1="<%= offset_x %>" y1="<%= y_val %>" x2="1000" y2="<%= y_val %>" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 4" />
+            <text x="<%= offset_x - 10 %>" y="<%= y_val %>" text-anchor="end" alignment-baseline="middle" class="text-[10px] fill-gray-400 font-sans">
               <%= (@max_y * p).to_i %>
             </text>
           <% end %>
@@ -51,9 +58,9 @@
             <% 
               x_pos = offset_x + (qty.to_f / @max_x * (chart_width - 20))
               height = (org_count.to_f / @max_y * chart_height)
-              bar_width = [3, (chart_width.to_f / (@max_x + 1)) * 0.8].max
+              bar_width = [4, (chart_width.to_f / (@max_x + 1)) * 0.8].max
             %>
-            <rect x="<%= x_pos %>" y="<%= chart_height - height %>" width="<%= bar_width %>" height="<%= height %>" class="fill-indigo-500 hover:fill-indigo-400 transition-colors">
+            <rect x="<%= x_pos %>" y="<%= chart_height - height %>" width="<%= bar_width %>" height="<%= height %>" rx="2" ry="2" fill="url(#barGradient)" class="hover:opacity-80 transition-opacity cursor-pointer">
               <title><%= org_count %> organisations ont publié <%= qty %> arrêtés</title>
             </rect>
           <% end %>

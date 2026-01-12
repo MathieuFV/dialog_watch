@@ -12,8 +12,8 @@ class WatchdogJob < ApplicationJob
 
     # Mettre à jour les compteurs du snapshot
     snapshot.update!(
-      total_organizations: Organization.count,
-      total_regulations: Regulation.count,
+      total_organizations: Organization.joins(:regulations).merge(Regulation.active).distinct.count,
+      total_regulations: Regulation.active.count,
       added_regulations: snapshot.snapshot_events.where(event_type: 'added').count,
       removed_regulations: snapshot.snapshot_events.where(event_type: 'removed').count,
       updated_at: Time.current
